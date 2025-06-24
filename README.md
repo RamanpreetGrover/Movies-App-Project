@@ -38,6 +38,18 @@ MongoDB integration, authentication, and route protection will be added in futur
 - 🖼️ Bootstrap UI for styling
 - ✅ Tested in Postman and browser
 
+### 🔗 Phase 2 Endpoints
+
+| Method | Route                | Description              |
+|--------|----------------------|--------------------------|
+| GET    | `/`                  | List all movies (Home)   |
+| GET    | `/add`               | Form to add movie        |
+| POST   | `/add`               | Submit new movie         |
+| GET    | `/movies/:id`        | View movie details       |
+| GET    | `/movies/:id/edit`   | Form to edit movie       |
+| POST   | `/movies/:id/edit`   | Submit movie edit        |
+| POST   | `/movies/:id/delete` | Delete a movie           |
+
 ---
 
 ## 🚧 Phase 3 – Authentication (Coming Soon)
