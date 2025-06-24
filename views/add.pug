@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h2 Add New Movie
+  if error
+    .alert.alert-danger= error
+  form(action="/add", method="POST")
+    .mb-3
+      label.form-label(for="name") Name
+      input.form-control(type="text", name="name", required)
+    .mb-3
+      label.form-label(for="description") Description
+      textarea.form-control(name="description")
+    .mb-3
+      label.form-label(for="year") Year
+      input.form-control(type="number", name="year", required)
+    .mb-3
+      label.form-label(for="genres") Genres
+      input.form-control(type="text", name="genres")
+    .mb-3
+      label.form-label(for="rating") Rating
+      input.form-control(type="number", name="rating", min="0", max="10", step="0.1")
+    button.btn.btn-success(type="submit") Add Movie
