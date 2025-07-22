@@ -15,12 +15,13 @@
   "author": "Raman, Sahib and Sidarth",
   "type": "commonjs",
   "main": "index.js",
- "scripts": {
-  "start": "node app.js",
-  "dev": "nodemon app.js"
-},
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
   "dependencies": {
     "express": "^5.1.0",
+    "mongoose": "^8.16.4",
     "pug": "^3.0.3"
   },
   "devDependencies": {
