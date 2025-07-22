@@ -1,69 +1,100 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-let idCounter = 1;
+const Movie = require("../models/Movie");
 
-// Show all movies
-router.get('/', (req, res) => {
-  res.render('index', { movies: req.app.locals.movies });
-});
-
-// Show Add Movie Form
-router.get('/add', (req, res) => {
-  res.render('add', { error: null });
-});
-
-// Handle Movie Submission
-router.post('/add', (req, res) => {
-  const { name, description, year, genres, rating } = req.body;
-  if (!name || !year) {
-    return res.render('add', { error: 'Name and Year are required.' });
+// ─── List All Movies ───────────────────────────────────────────────
+router.get("/", async (req, res, next) => {
+  try {
+    const movies = await Movie.find().sort({ createdAt: -1 });
+    res.render("index", { movies });
+  } catch (err) {
+    next(err);
   }
-
-  const newMovie = {
-    id: idCounter++,
-    name,
-    description,
-    year,
-    genres,
-    rating
-  };
-
-  req.app.locals.movies.push(newMovie);
-  res.redirect('/');
 });
 
-// Show Movie Details
-router.get('/movies/:id', (req, res) => {
-  const movie = req.app.locals.movies.find(m => m.id == req.params.id);
-  if (!movie) return res.status(404).send('Movie not found');
-  res.render('details', { movie });
+// ─── Show Add Movie Form ───────────────────────────────────────────
+router.get("/add", (req, res) => {
+  res.render("add", { error: null, movie: {} });
 });
 
-// Show Edit Form
-router.get('/movies/:id/edit', (req, res) => {
-  const movie = req.app.locals.movies.find(m => m.id == req.params.id);
-  if (!movie) return res.status(404).send('Movie not found');
-  res.render('edit', { movie, error: null });
-});
-
-// Handle Edit Submission
-router.post('/movies/:id/edit', (req, res) => {
-  const movie = req.app.locals.movies.find(m => m.id == req.params.id);
-  if (!movie) return res.status(404).send('Movie not found');
-
+// ─── Handle Movie Submission ───────────────────────────────────────
+router.post("/add", async (req, res, next) => {
   const { name, description, year, genres, rating } = req.body;
-  if (!name || !year) {
-    return res.render('edit', { movie, error: 'Name and Year are required.' });
-  }
+  // ensure genres is an array
+  const genresArr = genres
+    ? Array.isArray(genres)
+      ? genres
+      : genres.split(",").map((g) => g.trim())
+    : [];
 
-  Object.assign(movie, { name, description, year, genres, rating });
-  res.redirect('/');
+  try {
+    await Movie.create({ name, description, year, genres: genresArr, rating });
+    res.redirect("/");
+  } catch (err) {
+    // collect validation messages
+    const error =
+      Object.values(err.errors || {})
+        .map((e) => e.message)
+        .join(" ") || err.message;
+    res.render("add", { error, movie: req.body });
+  }
 });
 
-// Handle Delete
-router.post('/movies/:id/delete', (req, res) => {
-  req.app.locals.movies = req.app.locals.movies.filter(m => m.id != req.params.id);
-  res.redirect('/');
+// ─── Show Movie Details ────────────────────────────────────────────
+router.get("/movies/:id", async (req, res, next) => {
+  try {
+    const movie = await Movie.findById(req.params.id);
+    if (!movie) return res.status(404).send("Movie not found");
+    res.render("details", { movie });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Show Edit Form ────────────────────────────────────────────────
+router.get("/movies/:id/edit", async (req, res, next) => {
+  try {
+    const movie = await Movie.findById(req.params.id);
+    if (!movie) return res.status(404).send("Movie not found");
+    res.render("edit", { movie, error: null });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Handle Edit Submission ────────────────────────────────────────
+router.post("/movies/:id/edit", async (req, res, next) => {
+  const { name, description, year, genres, rating } = req.body;
+  const genresArr = genres
+    ? Array.isArray(genres)
+      ? genres
+      : genres.split(",").map((g) => g.trim())
+    : [];
+
+  try {
+    const movie = await Movie.findById(req.params.id);
+    if (!movie) return res.status(404).send("Movie not found");
+
+    movie.set({ name, description, year, genres: genresArr, rating });
+    await movie.save();
+    res.redirect(`/movies/${movie._id}`);
+  } catch (err) {
+    const error =
+      Object.values(err.errors || {})
+        .map((e) => e.message)
+        .join(" ") || err.message;
+    res.render("edit", { error, movie: { _id: req.params.id, ...req.body } });
+  }
+});
+
+// ─── Handle Delete ─────────────────────────────────────────────────
+router.post("/movies/:id/delete", async (req, res, next) => {
+  try {
+    await Movie.findByIdAndDelete(req.params.id);
+    res.redirect("/");
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;
