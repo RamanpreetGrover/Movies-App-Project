@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  .container.mt-5
+    .p-5.mb-4.bg-light.rounded-3
+      .container-fluid.py-5.text-center
+        h1.display-4 Welcome to the Movies App 🎬
+        p.lead Manage, rate, and explore your favorite movies — all in one place.
+
+        if !currentUser
+          a.btn.btn-primary.btn-lg(href="/register") Get Started
+          a.btn.btn-outline-dark.btn-lg.ms-3(href="/login") Login
+        else
+          a.btn.btn-success.btn-lg(href="/") Go to Dashboard

@@ -2,8 +2,12 @@ const express = require("express");
 const router = express.Router();
 const Movie = require("../models/Movie");
 
-// ─── List All Movies ───────────────────────────────────────────────
+// ─── Home or Movie List ─────────────────────────────────────────────
 router.get("/", async (req, res, next) => {
+  if (!req.session.userId) {
+    return res.render("home"); // 👈 show cover page if not logged in
+  }
+
   try {
     const movies = await Movie.find().sort({ createdAt: -1 });
     res.render("index", { movies });
@@ -18,9 +22,10 @@ router.get("/add", (req, res) => {
 });
 
 // ─── Handle Movie Submission ───────────────────────────────────────
+// ─── Handle Movie Submission ───────────────────────────────────────
 router.post("/add", async (req, res, next) => {
   const { name, description, year, genres, rating } = req.body;
-  // ensure genres is an array
+
   const genresArr = genres
     ? Array.isArray(genres)
       ? genres
@@ -28,10 +33,17 @@ router.post("/add", async (req, res, next) => {
     : [];
 
   try {
-    await Movie.create({ name, description, year, genres: genresArr, rating });
+    await Movie.create({
+      name,
+      description,
+      year,
+      genres: genresArr,
+      rating,
+      owner: req.session.userId // ✅ assign current user
+    });
+
     res.redirect("/");
   } catch (err) {
-    // collect validation messages
     const error =
       Object.values(err.errors || {})
         .map((e) => e.message)
@@ -39,6 +51,7 @@ router.post("/add", async (req, res, next) => {
     res.render("add", { error, movie: req.body });
   }
 });
+
 
 // ─── Show Movie Details ────────────────────────────────────────────
 router.get("/movies/:id", async (req, res, next) => {
