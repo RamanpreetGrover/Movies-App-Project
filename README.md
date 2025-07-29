@@ -52,7 +52,7 @@ MongoDB integration, authentication, and route protection will be added in futur
 
 ---
 
-## 🚧 Phase 3 – Authentication (Coming Soon)
+## 🚧 Phase 3 – Authentication 
 
 - [ ] Registration and Login functionality
 - [ ] Logout mechanism
@@ -61,7 +61,7 @@ MongoDB integration, authentication, and route protection will be added in futur
 
 ---
 
-## 🚧 Phase 4 – MongoDB & Deployment (Coming Soon)
+## 🚧 Phase 4 – MongoDB & Deployment 
 
 - [ ] Replace in-memory array with MongoDB
 - [ ] Use Mongoose models
